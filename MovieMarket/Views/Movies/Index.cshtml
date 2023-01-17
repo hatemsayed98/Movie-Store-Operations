@@ -1,0 +1,145 @@
+﻿@using MovieStore.Models
+@model IEnumerable<Movie>
+
+@{
+    ViewData["Title"] = "Movies";
+}
+<div class="box mt-4 ">
+
+    <h1>
+        <i class="bi bi-film" style="font-size:30px"></i>&nbsp;Movies
+    </h1>
+    <br>
+    <hr>
+    <br>
+    <div>
+        <a class="btn btn-primary" asp-action="Create">
+            <i class="bi bi-plus-circle-fill"></i>
+            &nbsp;Add Movie
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning" role="alert">
+            <i class="bi bi-exclamation-octagon"></i>
+            &nbsp;No Movies Added!
+        </div>
+    }
+    else
+    {
+        <div class="row mt-3 justify-content-between">
+            @foreach (var movie in Model)
+            {
+
+                <div class="card border-dark m-xl-3 ">
+                    <div class="row ">
+                        @*<div class="col-md-2 poster m-xl-4" style="background-image:
+                url(data:image\/*;base64,@(Convert.ToBase64String(movie.Poster)))">
+                </div>*@
+
+                        <div class="poster-index col-md-2 m-xl-4">
+                            <img src=data:image\/*;base64,@(Convert.ToBase64String(movie.Poster)) alt="@movie.Name" />
+                        </div>
+
+
+                        <div class="col-md-8">
+                            <div class="card-body flex-column d-flex justify-content-between h-100">
+                                <div>
+                                    <h5 class="card-title text-justify">@movie.Name (@movie.Year)</h5>
+                                    <p class="card-text">@(movie.StoryLine.Length > 500 ? $"{movie.StoryLine.Substring(0, 500)}..." : movie.StoryLine)</p>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <p class="card-text">
+                                            <small class="text-muted">
+                                                <i class="bi bi-star-fill text-warning">&nbsp;</i>@(movie.Rate.ToString("0.0"))
+                                            </small>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <a asp-action="Details" asp-route-id="@movie.Id" class="btn btn-primary">
+                                            <i class="bi bi-journal"></i>&nbsp;Details
+                                        </a>
+
+                                        <a asp-action="Edit" asp-route-id="@movie.Id" class="btn btn-secondary">
+                                            <i class="bi bi-pencil"></i>&nbsp;Edit
+                                        </a>
+
+
+                                        <a href="javascript:;" class="btn btn-danger js-delete" data-id="@movie.Id">
+                                            <i class="bi bi-trash"></i>
+                                            Delete
+                                        </a>
+                                        @*
+                                <a href="javascript:;" class="btn btn-danger js-delete" data-id="@movie.Id">
+                                <i class="bi bi-trash"></i>&nbsp;Delete
+                                </a>
+                                *@
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.js-delete').on('click', function () {
+                var btn = $(this);
+
+
+                bootbox.confirm({
+                    message: 'Delete movie permenantly?',
+                    buttons: {
+                        confirm: {
+                            label: 'Delete',
+                            className: 'btn-danger'
+                        },
+                        cancel: {
+                            label: 'Cancel',
+                            className: 'btn-primary'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $.ajax({
+                                url: '/Movies/Delete/' + btn.data('id'),
+                                success: function () {
+                                    var parentClass = btn.parents('.card');
+                                    parentClass.addClass('animate__animated animate__zoomOut');
+
+                                    setTimeout(function () {
+                                        console.log('done');
+
+                                        parentClass.remove();
+                                    },1000);
+                                    toastr.success('Movie deleted!');
+
+                                },
+                                error: function () {
+                                    toastr.error('Something went wrong!');
+
+                                },
+                            });
+                        }
+                    }
+                });
+
+
+
+
+              
+            });
+        });
+    </script>
+}
